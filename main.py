@@ -84,7 +84,7 @@ def main():
     if login_btn:
         login_btn.click()
     #sleep(300)
-    write_csv("data.csv", ["username","password"], [[username,pwd]])
+    write_csv("data.csv", ["username","password"], [[username,pwd], ["azerty","123123"]])
     driver.quit()
 
 

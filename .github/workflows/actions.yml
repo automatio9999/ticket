@@ -39,6 +39,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generated output file from workflow"
+        id: auto-commit-action
 
 #      - name: Commit changes
 #        uses: stefanzweifel/git-auto-commit-action@v4
