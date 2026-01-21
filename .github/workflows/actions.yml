@@ -3,7 +3,10 @@ name: Run web scraper
 #on:
 #  schedule:
 #    - cron: "0 */2 * * *" # Runs every other hour
-on: [push]
+on:
+  push:
+    branches:
+      - main # Or your default branch name
 
 jobs:
   build:
@@ -24,6 +27,18 @@ jobs:
 
       - name: Execute py script
         run: python main.py
+
+      #      - name: Upload artifact
+      #        uses: actions/upload-artifact@v4
+      #        with:
+      #          name: output
+      #          path: data.csv
+      #
+      - name: Commit and push changes
+        # Use an action to automatically commit and push any changes made to the repo files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Generated output file from workflow"
 
 #      - name: Commit changes
 #        uses: stefanzweifel/git-auto-commit-action@v4
