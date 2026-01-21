@@ -3,6 +3,8 @@ name: Run web scraper
 #on:
 #  schedule:
 #    - cron: "0 */2 * * *" # Runs every other hour
+on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
