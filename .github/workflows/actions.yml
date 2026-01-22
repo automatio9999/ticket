@@ -6,7 +6,7 @@ name: Run web scraper
 on:
   push:
     branches:
-      - main # Or your default branch name
+      - main
 
 jobs:
   build:
@@ -19,44 +19,32 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.14.2"
+          cache: "pip"
 
-      - name: Install python packages
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute py script
+      - name: Execute Entrypoint
         run: python main.py
 
-      #      - name: Upload artifact
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: output
-      #          path: data.csv
-      #
       - name: Commit and push changes
-        # Use an action to automatically commit and push any changes made to the repo files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Generated output file from workflow"
         id: auto-commit-action
 
-#      - name: Commit changes
-#        uses: stefanzweifel/git-auto-commit-action@v4
-#        with:
-#          commit_message: Update courses.md
-#        id: auto-commit-action
-
-#      - name: Send email
-#        if: steps.auto-commit-action.outputs.changes_detected == 'true'
-#        uses: dawidd6/action-send-mail@v3
-#        with:
-#          server_address: smtp.gmail.com
-#          server_port: 465
-#          username: ${{secrets.MAIL_USERNAME}}
-#          password: ${{secrets.MAIL_PASSWORD}}
-#          subject: "Babyschwimmen: Neue Kurse online"
-#          to: franz.bernack@cranky.de
-#          from: BabySwimming WebScraper
-#          html_body: file://courses.md
-#          convert_markdown: true
+      - name: Send email
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        uses: dawidd6/action-send-mail@v7
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{secrets.MAIL_USERNAME}}
+          password: ${{secrets.MAIL_PASSWORD}}
+          subject: "Tickets scraped data"
+          to: roronoa.z2022@gmail.com
+          from: Tickets WebScraper
+          html_body: file://data.csv
+          attachments: file://data.csv

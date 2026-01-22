@@ -34,15 +34,52 @@ def setup_driver(headless: bool = False) -> WebDriver:
     service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
     return webdriver.Chrome(service=service, options=options)
 
-        #"miss_utility_date":"release_date",
-        #"miss_should_clear":"response_due_date",
-        #"miss_should_expire":"expire_date",
 def main():
     base = "https://md.itic.occinc.com/excavatorTickets"
     username = "bdean@unitedconstructionservicesllc.com"
     pwd = "United2017!"
 
 
+    username_xpath = '//*[@id="username"]'
+    pwd_xpath = '//*[@id="pass"]'
+    login_xpath = '//*[@id="btn-login"]'
+
+    driver = setup_driver(False)
+    driver.get(base)
+    wait =  WebDriverWait(driver, 10)
+    username_elm = find_element_or_none(wait, username_xpath)
+    if username_elm:
+        username_elm.send_keys(username)
+    pwd_elm = find_element_or_none(wait, pwd_xpath)
+    sleep(1.23)
+    if pwd_elm:
+        pwd_elm.send_keys(pwd)
+    sleep(1.53)
+    login_btn = find_element_or_none(wait, login_xpath)
+
+    #if login_btn:
+    #    login_btn.click()
+    ##sleep(5*60)
+    #tickets = find_elements(WebDriverWait(driver, 5*60), '//*[@id="ExcavatorTicketTable"]/tbody/tr')
+    #i = 0
+    #data = []
+    #if tickets:
+    #    for t in tickets:
+    #        if i == 20:
+    #            break
+    #        id = t.find_element(By.XPATH, './td[1]/a/text()')
+    #        url = t.find_element(By.XPATH, './td[1]/a/@href')
+    #        release = t.find_element(By.XPATH, './td[2]')
+    #        response = t.find_element(By.XPATH, './td[3]')
+    #        cross_street = t.find_element(By.XPATH, './td[5]')
+    #        expire = t.find_element(By.XPATH, './td[8]')
+    #        ticket = dict(id=id,url=url,release=release,response=response,cross_street=cross_street,expire=expire)
+    #        data.append(ticket)
+    #        i+=1
+
+        #"miss_utility_date":"release_date",
+        #"miss_should_clear":"response_due_date",
+        #"miss_should_expire":"expire_date",
     fields = {
         "job_name": "VLSR",
         "cross_street": "5TH ST NW",
@@ -64,26 +101,6 @@ def main():
         "miss_clear_date": "date when all status history are markeClear/No Conflict (?)",
         "overdue_days": "TBD",
     }
-    username_xpath = '//*[@id="username"]'
-    pwd_xpath = '//*[@id="pass"]'
-    login_xpath = '//*[@id="btn-login"]'
-
-    driver = setup_driver(True)
-    driver.get(base)
-    wait =  WebDriverWait(driver, 10)
-    username_elm = find_element_or_none(wait, username_xpath)
-    if username_elm:
-        username_elm.send_keys(username)
-    pwd_elm = find_element_or_none(wait, pwd_xpath)
-    sleep(1.23)
-    if pwd_elm:
-        pwd_elm.send_keys(pwd)
-    sleep(1.53)
-    login_btn = find_element_or_none(wait, login_xpath)
-
-    if login_btn:
-        login_btn.click()
-    #sleep(300)
     write_csv("data.csv", ["username","password"], [[username,pwd], ["azerty","123123"]])
     driver.quit()
 
@@ -112,10 +129,10 @@ def find_element_or_none(wait: WebDriverWait, selector: str) -> WebElement | Non
         return None
 
 
-def find_elements(wait: WebDriverWait, selector: str) -> list[WebElement] | None:
+def find_elements(wait: WebDriverWait, xpath: str) -> list[WebElement] | None:
     try:
         children = wait.until(
-            EC.visibility_of_any_elements_located((By.XPATH, selector))
+            EC.visibility_of_any_elements_located((By.XPATH, xpath))
         )
         return children
     except:
