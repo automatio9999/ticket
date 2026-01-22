@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.14.2"
-          #cache: "pip"
+          cache: "pip"
 
       - name: Install Dependencies
         run: |
@@ -47,4 +47,4 @@ jobs:
           to: roronoa.z2022@gmail.com
           from: Tickets WebScraper
           html_body: file://data.csv
-          attachments: file://data.csv
+          attachments: data.csv
