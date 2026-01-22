@@ -46,7 +46,7 @@ def main():
 
     driver = setup_driver()
     driver.get(base)
-    wait =  WebDriverWait(driver, 10)
+    #wait =  WebDriverWait(driver, 10)
     #username_elm = find_element_or_none(wait, username_xpath)
     #if username_elm:
     #    username_elm.send_keys(username)
