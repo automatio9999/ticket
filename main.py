@@ -44,18 +44,18 @@ def main():
     pwd_xpath = '//*[@id="pass"]'
     login_xpath = '//*[@id="btn-login"]'
 
-    driver = setup_driver(False)
+    driver = setup_driver()
     driver.get(base)
     wait =  WebDriverWait(driver, 10)
-    username_elm = find_element_or_none(wait, username_xpath)
-    if username_elm:
-        username_elm.send_keys(username)
-    pwd_elm = find_element_or_none(wait, pwd_xpath)
-    sleep(1.23)
-    if pwd_elm:
-        pwd_elm.send_keys(pwd)
-    sleep(1.53)
-    login_btn = find_element_or_none(wait, login_xpath)
+    #username_elm = find_element_or_none(wait, username_xpath)
+    #if username_elm:
+    #    username_elm.send_keys(username)
+    #pwd_elm = find_element_or_none(wait, pwd_xpath)
+    #sleep(1.23)
+    #if pwd_elm:
+    #    pwd_elm.send_keys(pwd)
+    #sleep(1.53)
+    #login_btn = find_element_or_none(wait, login_xpath)
 
     #if login_btn:
     #    login_btn.click()
