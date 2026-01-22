@@ -17,14 +17,14 @@ def setup_driver(headless: bool = False) -> WebDriver:
 
     if headless:
         options.add_argument("--headless=new")  # New headless mode
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-dev-shm-usage")
-    prefs = {"profile.managed_default_content_settings.images": 2}
-    options.add_experimental_option("prefs", prefs)
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     # Stealth options
     options.add_argument("start-maximized")
     options.add_argument("--disable-blink-features=AutomationControlled")
+    prefs = {"profile.managed_default_content_settings.images": 2}
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option("prefs", prefs)
     options.add_experimental_option("useAutomationExtension", False)
 
     # Performance options
@@ -44,7 +44,7 @@ def main():
     pwd_xpath = '//*[@id="pass"]'
     login_xpath = '//*[@id="btn-login"]'
 
-    driver = setup_driver()
+    driver = setup_driver(True)
     driver.get(base)
     #wait =  WebDriverWait(driver, 10)
     #username_elm = find_element_or_none(wait, username_xpath)
