@@ -1,12 +1,13 @@
 name: Run web scraper
 
-#on:
-#  schedule:
-#    - cron: "0 */2 * * *" # Runs every other hour
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "0 13 * * *" # Runs every other hour
+    #- cron: "0 */2 * * *" # Runs every other hour
+#on:
+#  push:
+#    branches:
+#      - main
 
 jobs:
   build:
@@ -34,17 +35,3 @@ jobs:
         with:
           commit_message: "Generated output file from workflow"
         id: auto-commit-action
-
-      - name: Send email
-        if: steps.auto-commit-action.outputs.changes_detected == 'true'
-        uses: dawidd6/action-send-mail@v7
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{secrets.MAIL_USERNAME}}
-          password: ${{secrets.MAIL_PASSWORD}}
-          subject: "Tickets scraped data"
-          to: roronoa.z2022@gmail.com
-          from: Tickets WebScraper
-          html_body: file://data.csv
-          attachments: data.csv

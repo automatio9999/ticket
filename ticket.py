@@ -1,0 +1,188 @@
+from typing import Optional
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from utils import cleared_date, delay, expire_date_days, is_completed_status_history, overdue_date, format_not_completed_status_history, get_not_completed_status_history
+from driver import click_btn, find_element_or_none, find_elements, get_text
+from typing import Optional, Dict
+
+
+class Ticket:
+    def __init__(
+        self,
+        job_name: Optional[str] = None,
+        cross_street: Optional[str] = None,
+        ticket_type: Optional[str] = None,
+        status: Optional[str] = None,
+        id_ticket: Optional[str] = None,
+        former_id_ticket: Optional[str] = None,
+        release_date: Optional[str] = None,
+        response_date: Optional[str] = None,
+        expire_date: Optional[str] = None,
+        permit: Optional[str] = None,
+        days_to_expire: Optional[str] = None,
+        cleared_ticket_date: Optional[str] = None,
+        days_overdue: Optional[str] = None
+    ):
+        self.job_name = job_name
+        self.cross_street = cross_street
+        self.ticket_type = ticket_type
+        self.status = status
+        self.id_ticket = id_ticket
+        self.former_id_ticket = former_id_ticket
+        self.release_date = release_date
+        self.response_date = response_date
+        self.expire_date = expire_date
+        self.permit = permit
+        self.days_to_expire = days_to_expire
+        self.cleared_ticket_date = cleared_ticket_date
+        self.days_overdue = days_overdue
+    
+    def to_dict(self) -> Dict[str, Optional[str]]:
+        return {
+            'job_name': self.job_name,
+            'cross_street': self.cross_street,
+            'ticket_type': self.ticket_type,
+            'status': self.status,
+            'id_ticket': self.id_ticket,
+            'former_id_ticket': self.former_id_ticket,
+            'release_date': self.release_date,
+            'response_date': self.response_date,
+            'expire_date': self.expire_date,
+            'permit': self.permit,
+            'days_to_expire': self.days_to_expire,
+            'cleared_ticket_date': self.cleared_ticket_date,
+            'days_overdue': self.days_overdue
+        }
+
+
+def login_ticket(driver: WebDriver, username: str, password: str) -> None:
+    base = "https://md.itic.occinc.com/excavatorTickets"
+    username_xpath = '//*[@id="username"]'
+    pwd_xpath = '//*[@id="pass"]'
+    login_xpath = '//*[@id="btn-login"]'
+    driver.get(base)
+    wait =  WebDriverWait(driver, 5)
+
+    username_elm = find_element_or_none(wait, username_xpath)
+    if username_elm:
+        delay(1, 2)
+        username_elm.send_keys(username)
+
+    pwd_elm = find_element_or_none(wait, pwd_xpath)
+    if pwd_elm:
+        delay(1, 2)
+        pwd_elm.send_keys(password)
+
+    login_btn = find_element_or_none(wait, login_xpath)
+    if login_btn:
+        login_btn.click()
+
+from time import sleep
+def wait_loading_finish(driver: WebDriver):
+    sleep(5*60)
+    wait_loading = WebDriverWait(driver, 5*60)
+    loading_locator = (By.XPATH, '//*[@id="loading_block"]')
+    try:
+        wait_loading.until(EC.invisibility_of_element_located(loading_locator))
+    except TimeoutException:
+        pass
+
+
+def get_main_data(driver: WebDriver) -> list[dict]:
+    driver.execute_script("document.body.style.zoom='50%'")
+    tickets = find_elements(WebDriverWait(driver, 2), '//*[@id="ExcavatorTicketTable"]/tbody/tr')
+    i = 0
+    data = []
+    if tickets:
+        for t in tickets:
+            if i == 50:
+                break
+            id = t.find_element(By.XPATH, './td[1]/a').text
+            url = t.find_element(By.XPATH, './td[1]/a').get_attribute('href')
+            release_date = t.find_element(By.XPATH, './td[2]').text
+            response_date = t.find_element(By.XPATH, './td[3]').text
+            cross_street = t.find_element(By.XPATH, './td[5]').text.strip()
+            expire_date = t.find_element(By.XPATH, './td[8]').text
+            ticket = dict(id_ticket=id,url=url,release_date=release_date,response_date=response_date,cross_street=cross_street,expire_date=expire_date)
+            #print(id, url, expire_date)
+            data.append(ticket)
+            i+=1
+    return data
+
+
+def get_ticket_data(driver: WebDriver, data: list[dict]) -> list[dict]:
+    tickets_data = []
+    wait = WebDriverWait(driver, 2)
+    for ticket in data:
+        ticket_data = dict()
+        ticket_data.update(ticket)
+        print(f"[{ticket.get("id_ticket")}] {ticket.get("url")}")
+        driver.get(ticket["url"])
+        status_history_elm = find_elements(wait, '//*[@id="DistrictNotificationTable"]/tbody/tr')
+        click_btn(wait,'/html/body/div[6]/div[3]/div/button')
+        if status_history_elm:
+            history = []
+            for row in status_history_elm:
+                sh = dict()
+                district = row.find_element(By.XPATH,'./td[1]').text
+                status = row.find_element(By.XPATH,'./td[last()]').text
+                sh[district] = status
+                history.append(sh)
+            ticket_data.update(status_history=history)
+        job_name_elm = get_text(wait, '//*[@id="tktRem"]')
+        elm = get_text(wait, '//*[@id="collapsable1"]/div[2]/div[1]/span')
+        if elm:
+            is_update_of = elm.lower() == 'update of'
+            if is_update_of:
+                update_of = get_text(wait, '//*[@id="collapsable1"]/div[2]/div[2]/a/span')
+                ticket_data.update(former_id_ticket=update_of)
+        ticket_type = get_text(wait,'//*[@id="collapsable1"]/div[last()]/div[2]')
+        if ticket_type:
+            ticket_type = ticket_type.replace("\n", " ")
+        ticket_data.update(job_name=job_name_elm,ticket_type=ticket_type)
+        tickets_data.append(ticket_data)
+        delay(0, 1)
+    return tickets_data
+
+
+def normalize(tickets: list[dict]) -> list[dict]:
+    normalized_t = []
+    for t in tickets:
+        ticket = Ticket()
+        ticket.job_name = t.get("job_name")
+        ticket.cross_street = t.get("cross_street")
+        ticket.ticket_type = "New"
+        ticket.id_ticket = t.get("id_ticket")
+        ticket.former_id_ticket = t.get("former_id_ticket")
+        if ticket.former_id_ticket:
+            ticket.ticket_type = "Update-Renewal"
+        ticket.release_date = t.get("release_date")
+        ticket.response_date = t.get("response_date")
+        ticket.expire_date = t.get("expire_date")
+        ticket.days_overdue = t.get("days_overdue")
+        expire = t.get("expire_date")
+        history = t.get("status_history")
+        ticket.cleared_ticket_date = None
+        if expire and history:
+            days_to_expire = expire_date_days(expire)
+            ticket.days_to_expire = str(days_to_expire)
+            status = is_completed_status_history(history)
+            if status:
+                continue
+            not_complete = get_not_completed_status_history(history)
+            formatted_status = format_not_completed_status_history(not_complete)
+            ticket.permit = formatted_status
+            status = "closed" if status else "pending"
+            if status == "pending":
+                days_overdue = overdue_date(expire)
+                ticket.days_overdue = days_overdue
+            if status == "closed":
+                cleared_ticket_date = cleared_date()
+                ticket.cleared_ticket_date = cleared_ticket_date
+            ticket.status = status
+        normalized_t.append(ticket.to_dict())
+
+    return normalized_t
