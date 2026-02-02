@@ -93,7 +93,7 @@ def wait_loading_finish(driver: WebDriver):
 
 def get_main_data(driver: WebDriver) -> list[dict]:
     driver.execute_script("document.body.style.zoom='50%'")
-    tickets = find_elements(WebDriverWait(driver, 2), '//*[@id="ExcavatorTicketTable"]/tbody/tr')
+    tickets = find_elements(WebDriverWait(driver, 5), '//*[@id="ExcavatorTicketTable"]/tbody/tr')
     i = 0
     data = []
     if tickets:
@@ -115,7 +115,7 @@ def get_main_data(driver: WebDriver) -> list[dict]:
 
 def get_ticket_data(driver: WebDriver, data: list[dict]) -> list[dict]:
     tickets_data = []
-    wait = WebDriverWait(driver, 2)
+    wait = WebDriverWait(driver, 5)
     for ticket in data:
         ticket_data = dict()
         ticket_data.update(ticket)
@@ -144,7 +144,7 @@ def get_ticket_data(driver: WebDriver, data: list[dict]) -> list[dict]:
             ticket_type = ticket_type.replace("\n", " ")
         ticket_data.update(job_name=job_name_elm,ticket_type=ticket_type)
         tickets_data.append(ticket_data)
-        delay(0, 1)
+        delay(1, 3)
     return tickets_data
 
 
