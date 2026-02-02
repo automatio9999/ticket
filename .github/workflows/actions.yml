@@ -2,7 +2,7 @@ name: Run web scraper
 
 on:
   schedule:
-    - cron: "30 13 * * *" # Runs every other hour
+    - cron: "50 13 * * *" # Runs every other hour
     #- cron: "0 */2 * * *" # Runs every other hour
 #on:
 #  push:
