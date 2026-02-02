@@ -94,12 +94,12 @@ def wait_loading_finish(driver: WebDriver):
 def get_main_data(driver: WebDriver) -> list[dict]:
     driver.execute_script("document.body.style.zoom='50%'")
     tickets = find_elements(WebDriverWait(driver, 5), '//*[@id="ExcavatorTicketTable"]/tbody/tr')
-    i = 0
+    #i = 0
     data = []
     if tickets:
         for t in tickets:
-            if i == 50:
-                break
+            #if i == 50:
+            #    break
             id = t.find_element(By.XPATH, './td[1]/a').text
             url = t.find_element(By.XPATH, './td[1]/a').get_attribute('href')
             release_date = t.find_element(By.XPATH, './td[2]').text
@@ -109,7 +109,7 @@ def get_main_data(driver: WebDriver) -> list[dict]:
             ticket = dict(id_ticket=id,url=url,release_date=release_date,response_date=response_date,cross_street=cross_street,expire_date=expire_date)
             #print(id, url, expire_date)
             data.append(ticket)
-            i+=1
+            #i+=1
     return data
 
 
