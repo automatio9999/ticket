@@ -32,6 +32,9 @@ def expire_date_days(expire_date_str: str):
     return delta.days
 
 
+def is_expired_ticket(days_to_expire: int) -> bool:
+    return days_to_expire < 0
+
 def group_keys_by_value(data: List[Dict[str, str]]) -> Dict[str, List[str]]:
     grouped = defaultdict(list)
     for item in data:

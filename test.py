@@ -21,6 +21,6 @@ f = format_not_completed_status_history(not_complete)
 print(f)
 
 
-def check_ticket_type(former_id_ticker: str) -> str:
-    return "New" if len(former_id_ticker) == 0 else "Update-Renewal"
+def is_expired_ticket(days_to_expire: int) -> bool:
+    return days_to_expire < 0
 

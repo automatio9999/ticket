@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from utils import cleared_date, delay, expire_date_days, is_completed_status_history, overdue_date, format_not_completed_status_history, get_not_completed_status_history
+from utils import cleared_date, delay, expire_date_days, is_completed_status_history, is_expired_ticket, overdue_date, format_not_completed_status_history, get_not_completed_status_history
 from driver import click_btn, find_element_or_none, find_elements, get_text
 from typing import Optional, Dict
 
@@ -82,6 +82,7 @@ def login_ticket(driver: WebDriver, username: str, password: str) -> None:
 
 from time import sleep
 def wait_loading_finish(driver: WebDriver):
+    print("waiting data to finish loading, sleeping 5 minutes.")
     sleep(5*60)
     wait_loading = WebDriverWait(driver, 5*60)
     loading_locator = (By.XPATH, '//*[@id="loading_block"]')
@@ -94,18 +95,23 @@ def wait_loading_finish(driver: WebDriver):
 def get_main_data(driver: WebDriver) -> list[dict]:
     driver.execute_script("document.body.style.zoom='50%'")
     tickets = find_elements(WebDriverWait(driver, 5), '//*[@id="ExcavatorTicketTable"]/tbody/tr')
-    #i = 0
+    i = 0
     data = []
     if tickets:
+        print(f"total {len(tickets)} tickets found.")
         for t in tickets:
-            #if i == 50:
-            #    break
+            if i == 50:
+                break
+            expire_date = t.find_element(By.XPATH, './td[8]').text
+            days_to_expire = expire_date_days(expire_date)
+            if is_expired_ticket(days_to_expire):
+                continue
+
             id = t.find_element(By.XPATH, './td[1]/a').text
             url = t.find_element(By.XPATH, './td[1]/a').get_attribute('href')
             release_date = t.find_element(By.XPATH, './td[2]').text
             response_date = t.find_element(By.XPATH, './td[3]').text
             cross_street = t.find_element(By.XPATH, './td[5]').text.strip()
-            expire_date = t.find_element(By.XPATH, './td[8]').text
             ticket = dict(id_ticket=id,url=url,release_date=release_date,response_date=response_date,cross_street=cross_street,expire_date=expire_date)
             #print(id, url, expire_date)
             data.append(ticket)
@@ -116,11 +122,12 @@ def get_main_data(driver: WebDriver) -> list[dict]:
 def get_ticket_data(driver: WebDriver, data: list[dict]) -> list[dict]:
     tickets_data = []
     wait = WebDriverWait(driver, 5)
+    print(f"scraping {len(data)} non-expired tickets.")
     for ticket in data:
         ticket_data = dict()
         ticket_data.update(ticket)
-        print(f"[{ticket.get("id_ticket")}] {ticket.get("url")}")
         driver.get(ticket["url"])
+        print(f"{ticket['id']} {ticket['url']}")
         status_history_elm = find_elements(wait, '//*[@id="DistrictNotificationTable"]/tbody/tr')
         click_btn(wait,'/html/body/div[6]/div[3]/div/button')
         if status_history_elm:
