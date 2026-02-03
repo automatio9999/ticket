@@ -1,9 +1,9 @@
-name: Run web scraper
+name: Run Script
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "23 9 * * *" # Runs every other hour
+    - cron: "56 9 * * *" # Runs every other hour
     #- cron: "0 */2 * * *" # Runs every other hour
 #on:
 #  push:
