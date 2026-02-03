@@ -95,13 +95,10 @@ def wait_loading_finish(driver: WebDriver):
 def get_main_data(driver: WebDriver) -> list[dict]:
     driver.execute_script("document.body.style.zoom='50%'")
     tickets = find_elements(WebDriverWait(driver, 5), '//*[@id="ExcavatorTicketTable"]/tbody/tr')
-    i = 0
     data = []
     if tickets:
         print(f"total {len(tickets)} tickets found.")
         for t in tickets:
-            if i == 50:
-                break
             expire_date = t.find_element(By.XPATH, './td[8]').text
             days_to_expire = expire_date_days(expire_date)
             if is_expired_ticket(days_to_expire):
@@ -113,9 +110,7 @@ def get_main_data(driver: WebDriver) -> list[dict]:
             response_date = t.find_element(By.XPATH, './td[3]').text
             cross_street = t.find_element(By.XPATH, './td[5]').text.strip()
             ticket = dict(id_ticket=id,url=url,release_date=release_date,response_date=response_date,cross_street=cross_street,expire_date=expire_date)
-            #print(id, url, expire_date)
             data.append(ticket)
-            #i+=1
     return data
 
 
@@ -127,7 +122,7 @@ def get_ticket_data(driver: WebDriver, data: list[dict]) -> list[dict]:
         ticket_data = dict()
         ticket_data.update(ticket)
         driver.get(ticket["url"])
-        print(f"{ticket['id']} {ticket['url']}")
+        print(f"{ticket['url']}")
         delay(1, 3)
         status_history_elm = find_elements(wait, '//*[@id="DistrictNotificationTable"]/tbody/tr')
         #click_btn(wait,'/html/body/div[6]/div[3]/div/button')

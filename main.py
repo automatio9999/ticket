@@ -1,5 +1,5 @@
 from os import getenv
-from utils import write_spreadsheet 
+from spreadsheet import write_spreadsheet 
 from driver import setup_driver
 from ticket import login_ticket, normalize, wait_loading_finish, get_main_data, get_ticket_data
 
@@ -15,7 +15,7 @@ def main():
         tickets = get_ticket_data(driver, data)
         driver.quit()
         normalized = normalize(tickets)
-        write_spreadsheet("sample.xlsx", normalized)
+        write_spreadsheet("data.xlsx", normalized)
     else:
         print("username/password secrets not set.")
 
