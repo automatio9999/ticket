@@ -3,12 +3,7 @@ name: Run Script
 on:
   workflow_dispatch:
   schedule:
-    - cron: "56 9 * * *" # Runs every other hour
-    #- cron: "0 */2 * * *" # Runs every other hour
-#on:
-#  push:
-#    branches:
-#      - main
+    - cron: "30 10 * * *"
 
 jobs:
   build:
@@ -29,6 +24,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Execute Entrypoint
+        env:
+          MY_USERNAME: ${{ secrets.MY_USERNAME }}
+          MY_PASSWORD: ${{ secrets.MY_PASSWORD }}
         run: python main.py
 
       - name: Commit and push changes

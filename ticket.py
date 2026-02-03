@@ -128,8 +128,9 @@ def get_ticket_data(driver: WebDriver, data: list[dict]) -> list[dict]:
         ticket_data.update(ticket)
         driver.get(ticket["url"])
         print(f"{ticket['id']} {ticket['url']}")
+        delay(1, 3)
         status_history_elm = find_elements(wait, '//*[@id="DistrictNotificationTable"]/tbody/tr')
-        click_btn(wait,'/html/body/div[6]/div[3]/div/button')
+        #click_btn(wait,'/html/body/div[6]/div[3]/div/button')
         if status_history_elm:
             history = []
             for row in status_history_elm:
@@ -151,7 +152,6 @@ def get_ticket_data(driver: WebDriver, data: list[dict]) -> list[dict]:
             ticket_type = ticket_type.replace("\n", " ")
         ticket_data.update(job_name=job_name_elm,ticket_type=ticket_type)
         tickets_data.append(ticket_data)
-        delay(1, 3)
     return tickets_data
 
 
